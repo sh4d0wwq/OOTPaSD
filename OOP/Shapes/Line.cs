@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace OOP.Shapes
+namespace OOTPaSD.Shapes
 {
     public class Line : Shape
     {
