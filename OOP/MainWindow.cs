@@ -1,5 +1,6 @@
 ﻿using OOTPaSD.Shapes;
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 namespace OOTPaSD
@@ -8,6 +9,11 @@ namespace OOTPaSD
     public partial class MainWindow: Form
     {
         private ShapeManager shapeManager = new ShapeManager();
+        private bool isDrawing = false;
+        private bool isPreDrawing = false;
+        private Shape tempShape;
+        private Point currentPoint;
+        private List<Point> pointArray = new List<Point>();
         private enum ShapeENum { Line, BrokenLine, Rectangle, Ellipse, Polygon}
         private ShapeENum selectedShape = ShapeENum.Line;
         private Button selectedButton = null;
@@ -38,6 +44,7 @@ namespace OOTPaSD
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
                 brushColor = colorDialog.Color;
+                btnBrushColor.BackColor = brushColor;
             }
         }
 
@@ -46,6 +53,7 @@ namespace OOTPaSD
             if (colorDialog.ShowDialog() == DialogResult.OK)
             {
                 penColor = colorDialog.Color;
+                btnPenColor.BackColor = penColor;
             }
         }
 
@@ -66,30 +74,94 @@ namespace OOTPaSD
 
         private void drawPanel_MouseDown(object sender, MouseEventArgs e)
         {
-            startPoint = e.Location;
+            if (e.Button == MouseButtons.Left)
+            {
+                if (selectedShape != ShapeENum.BrokenLine && selectedShape != ShapeENum.Polygon)
+                {
+                    if (!isDrawing)
+                    {
+                        isDrawing = true;
+                        startPoint = e.Location;
+                    }
+                    else
+                    {
+                        shapeManager.AddShape(tempShape);
+                        tempShape = null;
+                        isDrawing = false;
+                        drawPanel.Invalidate();
+                    }
+                }            
+                else
+                {
+                    if (isPreDrawing)
+                    {
+                        isDrawing = true;
+                    }
+                    isPreDrawing = true;
+                    pointArray.Add(e.Location);
+                }
+            }
+            else if (e.Button == MouseButtons.Right && isDrawing)
+            {
+                tempShape = null;
+                pointArray.Clear();
+                isDrawing = false;
+                isPreDrawing = false;
+                drawPanel.Invalidate();
+            }
+            else if (e.Button == MouseButtons.Middle && isDrawing)
+            {
+                shapeManager.AddShape(tempShape);
+                tempShape = null;
+                pointArray.Clear();
+                isDrawing = false;
+                isPreDrawing = false;
+                drawPanel.Invalidate();
+            }
         }
 
-        private void drawPanel_MouseUp(object sender, MouseEventArgs e)
+        private void drawPanel_MouseMove(object sender, MouseEventArgs e)
         {
+            if (!isDrawing) return;
+
+            currentPoint = e.Location;
+
             switch (selectedShape)
             {
                 case ShapeENum.Line:
-                    shapeManager.AddShape(new Line(penColor, penWidth, startPoint, e.Location));
+                    tempShape = new Line(penColor, penWidth, startPoint, currentPoint);
                     break;
                 case ShapeENum.BrokenLine:
-
+                    pointArray[pointArray.Count - 1] = e.Location;
+                    tempShape = new BrokenLine(penColor, penWidth, pointArray.ToArray());
                     break;
                 case ShapeENum.Rectangle:
-                    shapeManager.AddShape(new MyRectangle(penColor, brushColor, penWidth, startPoint, e.Location.X - startPoint.X, e.Location.Y - startPoint.Y));
-                    break;
-                case ShapeENum.Polygon:
-
+                    tempShape = new MyRectangle(penColor, brushColor, penWidth, startPoint,
+                                                currentPoint.X - startPoint.X,
+                                                currentPoint.Y - startPoint.Y);
                     break;
                 case ShapeENum.Ellipse:
-                    shapeManager.AddShape(new Ellipse(penColor, brushColor, penWidth, startPoint, e.Location.X - startPoint.X, e.Location.Y - startPoint.Y));
+                    tempShape = new Ellipse(penColor, brushColor, penWidth, startPoint,
+                                            currentPoint.X - startPoint.X,
+                                            currentPoint.Y - startPoint.Y);
+                    break;
+                case ShapeENum.Polygon:
+                    pointArray[pointArray.Count - 1] = e.Location;
+                    tempShape = new Polygon(penColor, brushColor, penWidth, pointArray.ToArray());
                     break;
             }
-            shapeManager.DrawAll(drawPanel.CreateGraphics());
+
+            drawPanel.Invalidate();
+        }
+
+        private void drawPanel_Paint(object sender, PaintEventArgs e)
+        {
+            shapeManager.DrawAll(e.Graphics);
+
+            if (isDrawing && tempShape != null)
+            {
+                tempShape.Draw(e.Graphics);
+            }
         }
     }
 }
