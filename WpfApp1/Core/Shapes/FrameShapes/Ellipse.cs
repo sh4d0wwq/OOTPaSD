@@ -6,14 +6,13 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WpfApp1.Core.Shapes;
 
-namespace WpfApp1.Core.Shapes.FrameShapeFiles
+namespace WpfApp1.Core.Shapes.FrameShapes
 {
     public class MyEllipse : FrameShape
     {
 
         public static int id = 2;
         
-
         public MyEllipse(Canvas canvas, int x1, int y1, int x2, int y2)
             : base(canvas, x1, y1, x2, y2)
         {
@@ -57,15 +56,6 @@ namespace WpfApp1.Core.Shapes.FrameShapeFiles
             return tr;      
         }
 
-        public override Shape copy()
-        {
-            MyEllipse clone = new MyEllipse(canvas, x, y, width, height);
 
-
-            clone.pen = pen.Clone();
-            clone.brush = brush.Clone();
-
-            return clone;
-        }
     }
 }

@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WpfApp1.Core.Shapes;
 
-namespace WpfApp1.Core.Shapes.PointShapeFiles
+namespace WpfApp1.Core.Shapes.PointShapes
 {
     class BrokenLine : PointShape
     {
@@ -54,20 +54,22 @@ namespace WpfApp1.Core.Shapes.PointShapeFiles
             return tr;
 
         }
-
-        public override Shape copy()
+        
+        override protected void init(System.Windows.Shapes.Shape s)
         {
-            BrokenLine clone = new BrokenLine(canvas, x, y);
+            brush = settings.fillColor;
+            Pen.Brush = settings.borderColor;
+            pen.Thickness = settings.lineWidth;
 
-            for (int i = 1; i<pointCollection.Count; i++)
+            s.Stroke = pen.Brush;
+            s.StrokeDashArray = pen.DashStyle.Dashes;
+            s.StrokeThickness = pen.Thickness;
+            s.StrokeDashCap = pen.DashCap;
+
+            if (!settings.isLast)
             {
-                clone.AddPoint((int)pointCollection[i].X, (int)pointCollection[i].Y);
+                s.MouseUp += settings.mouseUp;
             }
-
-            clone.pen = pen.Clone();
-            clone.brush = brush.Clone();
-
-            return clone;
         }
 
         public override void finalize()

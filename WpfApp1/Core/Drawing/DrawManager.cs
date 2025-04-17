@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 using WpfApp1.Core.Shapes;
 
 namespace WpfApp1.Core.Drawing
@@ -50,17 +45,6 @@ namespace WpfApp1.Core.Drawing
                 shapeList[i].draw();
             }
         }
-
-        private DrawManager copy()
-        {
-            DrawManager sl = new DrawManager(shapeList.Count, canvas);
-            for (int i = 0; i<shapeList.Count; i++)
-            {
-                sl[i] = shapeList[i].copy();
-            }
-            return sl;
-        }
-
         public int size()
         {
             return shapeList.Count();

@@ -10,8 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using WpfApp1.Core.Shapes;
-using static WpfApp1.Core.Drawing.Draw;
+using WpfApp1.Core;
 
 namespace WpfApp1.UI
 {

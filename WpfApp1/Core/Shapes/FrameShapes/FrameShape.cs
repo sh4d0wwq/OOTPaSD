@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using WpfApp1.Core.Shapes;
 
-namespace WpfApp1.Core.Shapes.FrameShapeFiles
+namespace WpfApp1.Core.Shapes.FrameShapes
 {
     public abstract class FrameShape: Shape 
     {

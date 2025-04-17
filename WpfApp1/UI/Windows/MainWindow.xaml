@@ -95,7 +95,6 @@
                 <MenuItem Header="Redo" Command="Redo" InputGestureText="Ctrl+Shift+Z"></MenuItem>
                 <MenuItem Header="Add plugin" ></MenuItem>
             </MenuItem>
-            <MenuItem Height="21" Header="View"  Foreground="LightGray" Margin="5 0 5 0"/>
         </Menu>
 
         <Grid Grid.Row="1">

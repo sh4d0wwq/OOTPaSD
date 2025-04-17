@@ -10,12 +10,13 @@ using WpfApp1.Core.Drawing;
 
 namespace WpfApp1;
 using UI;
+using WpfApp1.Core;
 using WpfApp1.Core.Shapes;
-using WpfApp1.Core.Shapes.PointShapeFiles;
+using WpfApp1.Core.Shapes.PointShapes;
 
 public partial class MainWindow : Window
 {
-  
+    private DrawHandlers _drawingLogic;
     private ToggleButton[] shapeButtons;
     private ToggleButton[] widthButtons;
 
@@ -27,14 +28,6 @@ public partial class MainWindow : Window
     private Color[] allColors = { Colors.Red, Colors.LightGray, Colors.Green, Colors.LightGray, Colors.LightGreen, Colors.DarkGray, Colors.LightBlue, Colors.LavenderBlush, Colors.LightCoral, Colors.White, Colors.Black };
     
     private Type[] shapeTypeList;
-
-    private Brush mainColorBrush = new SolidColorBrush(new Color
-    {
-        A = 255,
-        R = 0x27,
-        G = 0x27,
-        B = 0x27
-    });
 
     Ellipse chosenEllipse;
 
@@ -54,7 +47,6 @@ public partial class MainWindow : Window
         return i1.CompareTo(i2);
     }
 
-
     public MainWindow()
     {
         InitializeComponent();
@@ -64,16 +56,8 @@ public partial class MainWindow : Window
         widthButtons = new ToggleButton[allStrokeWidths.Length];
         FillUIElements.setDropdownPopup(DropdownPopup,allStrokeWidths, widthButtons, new RoutedEventHandler(widthButtonClick), curWidth);
 
-        Type ourtype = typeof(Shape); // Базовый тип
-        shapeTypeList = Assembly.GetAssembly(ourtype).GetTypes().Where(type => type.IsSubclassOf(ourtype) && !type.IsAbstract).ToArray<Type>();
-        shapeTypeList = shapeTypeList.OrderBy(type =>
-        {
-            FieldInfo idField = type.GetField("id", BindingFlags.Public | BindingFlags.Static);
-            if (idField == null)
-                throw new InvalidOperationException($"Class {type.Name} does not have a static 'id' field.");
-
-            return (int)idField.GetValue(null); // Get static field value
-        }).ToArray();
+        Type ourtype = typeof(Shape);
+        shapeTypeList = ClassLoader.LoadShapeTypes(ourtype);
 
         shapeButtons = new ToggleButton[shapeTypeList.Length];
 
@@ -86,107 +70,30 @@ public partial class MainWindow : Window
 
     private void CanvasMouseDown(object sender, MouseButtonEventArgs e)
     {
-        if (curShape < 0) return;
-
-        int x = (int)e.GetPosition(mainCanvas).X;
-        int y = (int)e.GetPosition(mainCanvas).Y;
-
-        ShapeSettings s = new ShapeSettings
-        {
-            mouseUp = new MouseButtonEventHandler(CanvasMouseUp),
-            borderColor = borderEllipse.Fill,
-            fillColor = fillEllipse.Fill,
-            lineWidth = allStrokeWidths[curWidth],
-            isLast = false
-        };
-
-        if (shapeTypeList[curShape].IsSubclassOf(typeof(PointShape)))
-        {
-            if (e.ClickCount == 2)
-            {
-                Draw.finishCurrentPoly();
-            }
-            else
-            {
-                ConstructorInfo constructor = shapeTypeList[curShape]
-                    .GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 2);
-                if (constructor != null)
-                    Draw.onPolyMouseDown(e);
-            }
-        }
-        else
-        {
-            Draw.onMouseDown(e);
-        }
+        _drawingLogic.CanvasMouseDown(sender, e);
     }
-
 
     private void CanvasMouseUp(object sender, MouseButtonEventArgs e)
     {
-        if (curShape >= 0)
-        {
-            ShapeSettings s = new ShapeSettings();
-            int x = (int)e.GetPosition(mainCanvas).X;
-            int y = (int)e.GetPosition(mainCanvas).Y;
-            s.mouseUp = new MouseButtonEventHandler(CanvasMouseUp);
-            s.borderColor = borderEllipse.Fill;
-            s.fillColor = fillEllipse.Fill;
-            s.lineWidth = allStrokeWidths[curWidth];
-
-            if (shapeTypeList[curShape].IsSubclassOf(typeof(PointShape)))
-            {
-                s.isLast = false;
-                ConstructorInfo constructor = shapeTypeList[curShape].GetConstructors().Where(_ => _.GetParameters().Length == 3).First();
-                    Draw.onPolyMouseUp(x, y, constructor, s);
-            }
-            else
-            {
-                s.isLast = false;
-
-                ConstructorInfo constructor = shapeTypeList[curShape].GetConstructors().Where(_ => _.GetParameters().Length == 5).First();
-                    Draw.onMouseUp(x, y, constructor, s);
-            }
-            
-        }
+        _drawingLogic.CanvasMouseUp(sender, e);
     }
+
     private void CanvasMouseMove(object sender, MouseEventArgs e)
     {
-        if (curShape >= 0)
-        {
-            ShapeSettings s = new ShapeSettings();
-            int x = (int)e.GetPosition(mainCanvas).X;
-            int y = (int)e.GetPosition(mainCanvas).Y;
-            s.mouseUp = new MouseButtonEventHandler(CanvasMouseUp);
-            s.borderColor = borderEllipse.Fill;
-            s.fillColor = fillEllipse.Fill;
-            s.lineWidth = allStrokeWidths[curWidth];
-
-            if (shapeTypeList[curShape].IsSubclassOf(typeof(PointShape))) 
-            {
-                s.isLast = false;
-                ConstructorInfo constructor = shapeTypeList[curShape].GetConstructors().Where(_ => _.GetParameters().Length == 3).First();
-                Draw.onPolyMouseMove(x, y, constructor, s);
-            }
-            else
-            {
-                s.isLast = false;
-                ConstructorInfo constructor = shapeTypeList[curShape].GetConstructors().Where(_ => _.GetParameters().Length == 5).First();
-                Draw.onMouseMove(x, y, constructor, s);
-            }
-        }
+        _drawingLogic.CanvasMouseMove(sender, e);
     }
-
-    
 
     private void ShapeButtonClick(object sender, RoutedEventArgs e)
     {
-        for (int i = 0; i<shapeTypeList.Length; i++)
+        for (int i = 0; i < shapeTypeList.Length; i++)
         {
-            if (shapeButtons[i]==(ToggleButton)sender)
+            if (shapeButtons[i] == (ToggleButton)sender)
             {
                 curShape = i;
-                shapeButtons[i].IsChecked=true;
-            } else
+                _drawingLogic.SetShape(i);
+                shapeButtons[i].IsChecked = true;
+            }
+            else
             {
                 shapeButtons[i].IsChecked = false;
             }
@@ -200,6 +107,7 @@ public partial class MainWindow : Window
             if (widthButtons[i] == (ToggleButton)sender)
             {
                 curWidth = i;
+                _drawingLogic.SetLineWidth(i);
                 widthButtons[i].IsChecked = true;
             }
             else
@@ -209,16 +117,21 @@ public partial class MainWindow : Window
         }
     }
 
+    private void colorMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        _drawingLogic.SetBorderColor(((Ellipse)sender).Fill);
+    }
+
+    private void chooseFill(object sender, MouseButtonEventArgs e)
+    {
+        _drawingLogic.SetFillColor(((Ellipse)sender).Fill); 
+    }
+
     private void LoadedCanvas(object sender, RoutedEventArgs e)
     {
         Draw.mainCanvas = (Canvas)sender;
         Draw.drawManager = new DrawManager(0, Draw.mainCanvas);
-
-    }
-
-    private void colorMouseDown(object sender, MouseButtonEventArgs e)
-    {
-        chosenEllipse.Fill = ((Ellipse)sender).Fill;
+        _drawingLogic = new DrawHandlers(mainCanvas, shapeTypeList, allStrokeWidths);
     }
 
     private void chooseBorder(object sender, MouseButtonEventArgs e)
@@ -227,14 +140,6 @@ public partial class MainWindow : Window
         chosenEllipse.Stroke = Brushes.LightSteelBlue;
         chosenEllipse.StrokeThickness = 2;
         fillEllipse.StrokeThickness = 0;
-    }
-    
-    private void chooseFill(object sender, MouseButtonEventArgs e)
-    {
-        chosenEllipse = fillEllipse;
-        chosenEllipse.Stroke = Brushes.LightSteelBlue;
-        chosenEllipse.StrokeThickness = 2;
-        borderEllipse.StrokeThickness = 0;
     }
 
 

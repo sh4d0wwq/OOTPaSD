@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WpfApp1.Core.Shapes;
 
-namespace WpfApp1.Core.Shapes.PointShapeFiles
+namespace WpfApp1.Core.Shapes.PointShapes
 {
     class Polygon: PointShape
     {
@@ -32,8 +32,6 @@ namespace WpfApp1.Core.Shapes.PointShapeFiles
 
         }
 
-        
-
         override public System.Windows.UIElement draw()
         {
 
@@ -48,20 +46,6 @@ namespace WpfApp1.Core.Shapes.PointShapeFiles
 
         }
 
-        public override Shape copy()
-        {
-            Polygon clone = new Polygon(canvas, x, y);
-
-            for (int i = 1; i < pointCollection.Count; i++)
-            {
-                clone.AddPoint((int)pointCollection[i].X, (int)pointCollection[i].Y);
-            }
-
-            clone.pen = pen.Clone();
-            clone.brush = brush.Clone();
-
-            return clone;
-        }
         public override void finalize()
         {
             draw();

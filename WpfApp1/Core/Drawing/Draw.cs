@@ -1,18 +1,8 @@
-﻿using Microsoft.Maui.Controls.Shapes;
-using Microsoft.UI.Xaml.Shapes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Reflection;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
-using WpfApp1.Core.Shapes;
-using WpfApp1.Core.Shapes.PointShapeFiles;
+using WpfApp1.Core.Shapes.PointShapes;
 
 
 namespace WpfApp1.Core.Drawing
@@ -32,12 +22,6 @@ namespace WpfApp1.Core.Drawing
         public static DrawManager drawManager = null;
 
 
-        public static void reDraw()
-        {
-
-        }
-
-        
         public static void onMouseDown(MouseButtonEventArgs e)
         {
             if (!onDrawing)
@@ -62,19 +46,10 @@ namespace WpfApp1.Core.Drawing
 
         }
 
-        public struct ShapeSettings
-        {
-            public Brush borderColor;
-            public Brush fillColor;
-            public double lineWidth;
-            public bool isLast;
-            public MouseButtonEventHandler mouseUp;
-        }
 
         private static void setShape(int xFinish, int yFinish, ConstructorInfo constructor, ShapeSettings s)
         {
             WpfApp1.Core.Shapes.Shape temp = (WpfApp1.Core.Shapes.Shape)constructor.Invoke(new object[] { mainCanvas, xStart, yStart, xFinish, yFinish });
-
 
             temp.settings = s;
 
@@ -85,9 +60,6 @@ namespace WpfApp1.Core.Drawing
             curShape = temp;
 
         }
-
-    
-
         public static void onMouseUp(int xFinish, int yFinish, ConstructorInfo constructor, ShapeSettings s)
         {
             if (onDrawing)
@@ -96,7 +68,6 @@ namespace WpfApp1.Core.Drawing
             }
             onDrawing = false;
             curShape = null;
-
         }
 
 
@@ -125,8 +96,6 @@ namespace WpfApp1.Core.Drawing
             }
 
         }
-
-
 
         public static void onPolyMouseUp(int xFinish, int yFinish, ConstructorInfo constructor, ShapeSettings s)
         {

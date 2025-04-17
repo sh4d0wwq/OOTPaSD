@@ -6,7 +6,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using WpfApp1.Core.Shapes;
 
-namespace WpfApp1.Core.Shapes.FrameShapeFiles
+namespace WpfApp1.Core.Shapes.FrameShapes
 {
     public class MyLine : FrameShape
     {
@@ -39,15 +39,5 @@ namespace WpfApp1.Core.Shapes.FrameShapeFiles
             
         }
 
-        public override Shape copy()
-        {
-            MyLine clone = new MyLine(canvas, x, y, width, height);
-
-
-            clone.pen = pen.Clone();
-            clone.brush = brush.Clone();
-
-            return clone;
-        }
     }
 }

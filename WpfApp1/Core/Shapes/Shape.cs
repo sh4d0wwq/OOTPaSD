@@ -174,7 +174,7 @@ namespace WpfApp1.Core.Shapes
             }
         }
 
-        protected void init(System.Windows.Shapes.Shape s)
+        protected virtual void init(System.Windows.Shapes.Shape s)
         {
             brush = settings.fillColor;
             Pen.Brush = settings.borderColor;
@@ -193,8 +193,6 @@ namespace WpfApp1.Core.Shapes
         }
 
         abstract public UIElement draw();
-
-        abstract public Shape copy();
 
     }
 }

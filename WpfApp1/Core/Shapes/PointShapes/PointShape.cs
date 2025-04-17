@@ -8,7 +8,7 @@ using System.Windows.Media;
 using WpfApp1.Core.Drawing;
 using WpfApp1.Core.Shapes;
 
-namespace WpfApp1.Core.Shapes.PointShapeFiles
+namespace WpfApp1.Core.Shapes.PointShapes
 {
 
     
