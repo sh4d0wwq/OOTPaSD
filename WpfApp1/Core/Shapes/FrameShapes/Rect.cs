@@ -39,7 +39,6 @@ namespace WpfApp1.Core.Shapes.FrameShapes
         {
 
         }
-
         override public UIElement draw()
         {
             Rectangle tr = new Rectangle();
@@ -47,7 +46,7 @@ namespace WpfApp1.Core.Shapes.FrameShapes
             tr.Height = height;
 
             init(tr);
-
+            tr.IsHitTestVisible = false;
             canvas.Children.Add(tr);
             Canvas.SetLeft(tr, x);
             Canvas.SetTop(tr, y);
@@ -55,6 +54,41 @@ namespace WpfApp1.Core.Shapes.FrameShapes
             return tr;
 
         }
+        public override ShapeDto ToDto()
+        {
+            return new ShapeDto
+            {
+                Type = GetType().Name,
+                X = X,
+                Y = Y,
+                Width = Width,
+                Height = Height,
+                Settings = new ShapeSettingsDto
+                {
+                    BorderColor = BrushConverterHelper.BrushToString(settings.borderColor),
+                    FillColor = BrushConverterHelper.BrushToString(settings.fillColor),
+                    LineWidth = settings.lineWidth
+                }
+            };
+        }
+
+        public static Shape FromDto(Canvas canvas, ShapeDto dto)
+        {
+            var settings = new ShapeSettings
+            {
+                borderColor = BrushConverterHelper.StringToBrush(dto.Settings.BorderColor),
+                fillColor = BrushConverterHelper.StringToBrush(dto.Settings.FillColor),
+                lineWidth = dto.Settings.LineWidth
+            };
+           
+            MyRect result = new MyRect(canvas, dto.X, dto.Y, dto.Width, dto.Height);
+            result.settings = settings;
+            return result;
+        }
 
     }
+
 }
+
+    
+

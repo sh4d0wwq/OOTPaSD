@@ -38,6 +38,7 @@ namespace WpfApp1.Core.Shapes.PointShapes
             System.Windows.Shapes.Polygon tr = new System.Windows.Shapes.Polygon();
 
             tr.Points = pointCollection;
+            tr.IsHitTestVisible = false;
             init(tr);
 
             canvas.Children.Add(tr);
@@ -49,6 +50,45 @@ namespace WpfApp1.Core.Shapes.PointShapes
         public override void finalize()
         {
             draw();
+        }
+
+        public override ShapeDto ToDto()
+        {
+            return new ShapeDto
+            {
+                Type = GetType().Name,
+                X = X,
+                Y = Y,
+                Width = Width,
+                Points = pointCollection.Select(p => new PointDto(p)).ToList(),
+                Settings = new ShapeSettingsDto
+                {
+                    BorderColor = BrushConverterHelper.BrushToString(settings.borderColor),
+                    FillColor = BrushConverterHelper.BrushToString(settings.fillColor),
+                    LineWidth = settings.lineWidth
+                }
+            };
+        }
+
+        public static Shape FromDto(Canvas canvas, ShapeDto dto)
+        {
+            var polygonDto = dto as ShapeDto;
+
+            if (polygonDto == null)
+                throw new ArgumentException("Invalid DTO for Polygon");
+
+            var settings = new ShapeSettings
+            {
+                borderColor = BrushConverterHelper.StringToBrush(polygonDto.Settings.BorderColor),
+                fillColor = BrushConverterHelper.StringToBrush(polygonDto.Settings.FillColor),
+                lineWidth = polygonDto.Settings.LineWidth
+            };
+
+            Polygon result = new Polygon(canvas, polygonDto.X, polygonDto.Y);
+            result.settings = settings;
+            result.pointCollection = new PointCollection(polygonDto.Points.Select(p => p.ToPoint()));
+
+            return result;
         }
     }
 }

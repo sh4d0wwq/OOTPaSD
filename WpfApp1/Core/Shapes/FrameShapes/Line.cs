@@ -31,6 +31,7 @@ namespace WpfApp1.Core.Shapes.FrameShapes
             tr.Y1 = y;
             tr.X2 = width;
             tr.Y2 = height;
+            tr.IsHitTestVisible = false;
             init(tr);
 
             canvas.Children.Add(tr);
@@ -38,6 +39,37 @@ namespace WpfApp1.Core.Shapes.FrameShapes
             return tr;
             
         }
+        public override ShapeDto ToDto()
+        {
+            return new ShapeDto
+            {
+                Type = GetType().Name,
+                X = x,
+                Y = y,
+                Width = width,
+                Height = height,
+                Settings = new ShapeSettingsDto
+                {
+                    BorderColor = BrushConverterHelper.BrushToString(settings.borderColor),
+                    FillColor = BrushConverterHelper.BrushToString(settings.fillColor),
+                    LineWidth = settings.lineWidth
+                }
+            };
+        }
 
+        public static Shape FromDto(Canvas canvas, ShapeDto dto)
+        {
+            var settings = new ShapeSettings
+            {
+                borderColor = BrushConverterHelper.StringToBrush(dto.Settings.BorderColor),
+                fillColor = BrushConverterHelper.StringToBrush(dto.Settings.FillColor),
+                lineWidth = dto.Settings.LineWidth
+            };
+
+            return new MyLine(canvas, dto.X, dto.Y, dto.Width, dto.Height)
+            {
+                settings = settings
+            };
+        }
     }
 }

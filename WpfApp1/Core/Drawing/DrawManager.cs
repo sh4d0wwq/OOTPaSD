@@ -7,8 +7,9 @@ namespace WpfApp1.Core.Drawing
     public class DrawManager
     {
 
-        private List<Shape> shapeList = new List<Shape>();
+        public List<Shape> shapeList = new List<Shape>();
         private Canvas canvas;
+        private Stack<Shape> undoStack = new Stack<Shape>();
 
         public Shape? this[int index]
         {
@@ -36,24 +37,34 @@ namespace WpfApp1.Core.Drawing
             this.canvas = canvas;
         }
 
-
+        public void Draw()
+        {
+            shapeList[^1].draw();
+        }
+        public void DrawAll()
+        {
+            foreach (var shape in shapeList)
+            {
+                shape.draw();
+            }
+        }
         public void reDraw()
         {
-            canvas.Children.Clear();
-            for (int i = 0; i<size(); i++)
+            if (canvas.Children.Count > 0)
             {
-                shapeList[i].draw();
+                canvas.Children.RemoveAt(canvas.Children.Count - 1);
             }
+            shapeList[^1].draw();
         }
         public int size()
         {
             return shapeList.Count();
         }
 
-
         public void add(Shape s)
         {
             shapeList.Add(s);
+            undoStack.Clear();
         }
 
         public void removeLast()
@@ -64,6 +75,34 @@ namespace WpfApp1.Core.Drawing
         public Shape last()
         {
             return shapeList.Last();
+        }
+
+        public void Undo()
+        {
+            if (shapeList.Count > 0)
+            {
+                var shape = shapeList[^1];
+                shapeList.RemoveAt(shapeList.Count - 1);
+                undoStack.Push(shape);
+                canvas.Children.RemoveAt(canvas.Children.Count - 1);
+            }
+        }
+
+        public void Redo()
+        {
+            if (undoStack.Count > 0)
+            {
+                var shape = undoStack.Pop();
+                shapeList.Add(shape);
+                shapeList[^1].draw();
+            }
+        }
+
+        public void Clear()
+        {
+            canvas.Children.Clear();
+            shapeList.Clear();
+            undoStack.Clear();
         }
     }
 }

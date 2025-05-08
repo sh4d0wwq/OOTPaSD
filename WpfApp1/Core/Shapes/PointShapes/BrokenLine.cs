@@ -14,7 +14,6 @@ namespace WpfApp1.Core.Shapes.PointShapes
     {
         public static int id = 5;
         
-
         public BrokenLine(Canvas canvas, int x, int y, int width)
             : base(canvas, x, y, width)
         {
@@ -32,8 +31,6 @@ namespace WpfApp1.Core.Shapes.PointShapes
             num++;
         }
 
-
-
         override public System.Windows.UIElement draw()
         {
 
@@ -48,6 +45,7 @@ namespace WpfApp1.Core.Shapes.PointShapes
                 B = 0x27
             });
             init(tr);
+            tr.IsHitTestVisible = false;
 
             canvas.Children.Add(tr);
 
@@ -66,15 +64,50 @@ namespace WpfApp1.Core.Shapes.PointShapes
             s.StrokeThickness = pen.Thickness;
             s.StrokeDashCap = pen.DashCap;
 
-            if (!settings.isLast)
-            {
-                s.MouseUp += settings.mouseUp;
-            }
         }
 
         public override void finalize()
         {
             draw();
+        }
+
+        public override ShapeDto ToDto()
+        {
+            return new ShapeDto
+            {
+                Type = GetType().Name,
+                X = X,
+                Y = Y,
+                Width = Width,
+                Points = pointCollection.Select(p => new PointDto(p)).ToList(),
+                Settings = new ShapeSettingsDto
+                {
+                    BorderColor = BrushConverterHelper.BrushToString(settings.borderColor),
+                    FillColor = BrushConverterHelper.BrushToString(settings.fillColor),
+                    LineWidth = settings.lineWidth
+                }
+            };
+        }
+
+        public static Shape FromDto(Canvas canvas, ShapeDto dto)
+        {
+            var lineDto = dto as ShapeDto;
+
+            if (lineDto == null)
+                throw new ArgumentException("Invalid DTO for BrokenLine");
+
+            var settings = new ShapeSettings
+            {
+                borderColor = BrushConverterHelper.StringToBrush(lineDto.Settings.BorderColor),
+                fillColor = BrushConverterHelper.StringToBrush(lineDto.Settings.FillColor),
+                lineWidth = lineDto.Settings.LineWidth
+            };
+
+            BrokenLine result = new BrokenLine(canvas, lineDto.X, lineDto.Y);
+            result.settings = settings;
+            result.pointCollection = new PointCollection(lineDto.Points.Select(p => p.ToPoint()));
+
+            return result;
         }
     }
 }

@@ -186,13 +186,9 @@ namespace WpfApp1.Core.Shapes
             s.StrokeThickness = pen.Thickness;
             s.StrokeDashCap = pen.DashCap;
 
-            if (!settings.isLast)
-            {
-                s.MouseUp += settings.mouseUp;
-            }
         }
 
-        abstract public UIElement draw();
-
+        public abstract UIElement draw();
+        public abstract ShapeDto ToDto();
     }
 }

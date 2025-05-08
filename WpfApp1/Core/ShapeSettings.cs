@@ -13,7 +13,5 @@ namespace WpfApp1.Core
         public Brush borderColor;
         public Brush fillColor;
         public double lineWidth;
-        public bool isLast;
-        public MouseButtonEventHandler mouseUp;
     }
 }

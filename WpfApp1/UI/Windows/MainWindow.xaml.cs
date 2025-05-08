@@ -9,6 +9,8 @@ using System.Reflection;
 using WpfApp1.Core.Drawing;
 
 namespace WpfApp1;
+
+using Microsoft.Win32;
 using UI;
 using WpfApp1.Core;
 using WpfApp1.Core.Shapes;
@@ -24,8 +26,6 @@ public partial class MainWindow : Window
     private int curWidth = 0;
 
     private double[] allStrokeWidths = { 1, 1.5, 2, 3, 5};
-    
-    private Color[] allColors = { Colors.Red, Colors.LightGray, Colors.Green, Colors.LightGray, Colors.LightGreen, Colors.DarkGray, Colors.LightBlue, Colors.LavenderBlush, Colors.LightCoral, Colors.White, Colors.Black };
     
     private Type[] shapeTypeList;
 
@@ -51,8 +51,6 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        FillUIElements.setColorList(colorList,allColors, new MouseButtonEventHandler(colorMouseDown));
-
         widthButtons = new ToggleButton[allStrokeWidths.Length];
         FillUIElements.setDropdownPopup(DropdownPopup,allStrokeWidths, widthButtons, new RoutedEventHandler(widthButtonClick), curWidth);
 
@@ -68,9 +66,20 @@ public partial class MainWindow : Window
         fillEllipse.StrokeThickness = 0;
     }
 
-    private void CanvasMouseDown(object sender, MouseButtonEventArgs e)
+    private void SetSlidersFromColor(Color color)
     {
-        _drawingLogic.CanvasMouseDown(sender, e);
+        SliderR.Value = color.R;
+        SliderG.Value = color.G;
+        SliderB.Value = color.B;
+    }
+    private void CanvasLeftMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        _drawingLogic.CanvasLeftMouseDown(sender, e);
+    }
+
+    private void CanvasRightMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        _drawingLogic.CanvasRightMouseDown(sender, e);
     }
 
     private void CanvasMouseUp(object sender, MouseButtonEventArgs e)
@@ -117,14 +126,35 @@ public partial class MainWindow : Window
         }
     }
 
-    private void colorMouseDown(object sender, MouseButtonEventArgs e)
+    private void ColorSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
-        _drawingLogic.SetBorderColor(((Ellipse)sender).Fill);
+        byte r = (byte)SliderR.Value;
+        byte g = (byte)SliderG.Value;
+        byte b = (byte)SliderB.Value;
+
+        var brush = new SolidColorBrush(Color.FromRgb(r, g, b));
+
+        chosenEllipse.Fill = brush;
+        _drawingLogic.SetBorderColor(borderEllipse.Fill);
+        _drawingLogic.SetFillColor(fillEllipse.Fill);
     }
 
     private void chooseFill(object sender, MouseButtonEventArgs e)
     {
-        _drawingLogic.SetFillColor(((Ellipse)sender).Fill); 
+        chosenEllipse = fillEllipse;
+        chosenEllipse.Stroke = Brushes.LightSteelBlue;
+        chosenEllipse.StrokeThickness = 2;
+        borderEllipse.StrokeThickness = 0;
+        SetSlidersFromColor(((SolidColorBrush)fillEllipse.Fill).Color);
+    }
+
+    private void chooseBorder(object sender, MouseButtonEventArgs e)
+    {
+        chosenEllipse = borderEllipse;
+        chosenEllipse.Stroke = Brushes.LightSteelBlue;
+        chosenEllipse.StrokeThickness = 2;
+        fillEllipse.StrokeThickness = 0;
+        SetSlidersFromColor(((SolidColorBrush)borderEllipse.Fill).Color);
     }
 
     private void LoadedCanvas(object sender, RoutedEventArgs e)
@@ -134,12 +164,54 @@ public partial class MainWindow : Window
         _drawingLogic = new DrawHandlers(mainCanvas, shapeTypeList, allStrokeWidths);
     }
 
-    private void chooseBorder(object sender, MouseButtonEventArgs e)
+    
+
+    private void UndoCommandBinding_Executed(object sender, RoutedEventArgs e)
     {
-        chosenEllipse = borderEllipse;
-        chosenEllipse.Stroke = Brushes.LightSteelBlue;
-        chosenEllipse.StrokeThickness = 2;
-        fillEllipse.StrokeThickness = 0;
+        _drawingLogic.Undo();
+    }
+
+    private void OpenCommandBinding_Executed(object sender, RoutedEventArgs e)
+    {
+        OpenFileDialog openFileDialog = new OpenFileDialog();
+        openFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+        openFileDialog.DefaultExt = ".json";
+        openFileDialog.AddExtension = true;
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            string filePath = openFileDialog.FileName;
+
+            Draw.drawManager.shapeList = ShapeSerializer.LoadShapes(filePath, Draw.mainCanvas);
+            Draw.mainCanvas.Children.Clear();
+            Draw.drawManager.DrawAll();
+        }
+    }
+
+    private void SaveCommandBinding_Executed(object sender, RoutedEventArgs e)
+    {
+        SaveFileDialog saveFileDialog = new SaveFileDialog();
+        saveFileDialog.Filter = "JSON files (*.json)|*.json|All files (*.*)|*.*";
+        saveFileDialog.DefaultExt = ".json";
+        saveFileDialog.AddExtension = true;
+
+        if (saveFileDialog.ShowDialog() == true)
+        {
+            string filePath = saveFileDialog.FileName;
+
+            ShapeSerializer.SaveShapes(Draw.drawManager.shapeList, filePath);
+
+        }
+    }
+
+    private void RedoCommandBinding_Executed(object sender, RoutedEventArgs e)
+    {
+        _drawingLogic.Redo();
+    }
+
+    private void NewFileCommandBinding_Executed(object sender, RoutedEventArgs e)
+    {
+        Draw.drawManager.Clear();
     }
 
 

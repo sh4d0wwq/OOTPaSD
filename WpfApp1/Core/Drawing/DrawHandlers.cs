@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using WpfApp1.Core.Shapes.FrameShapes;
 using WpfApp1.Core.Shapes.PointShapes;
 
 namespace WpfApp1.Core.Drawing
@@ -47,7 +48,7 @@ namespace WpfApp1.Core.Drawing
             _curWidth = widthIndex;
         }
 
-        public void CanvasMouseDown(object sender, MouseButtonEventArgs e)
+        public void CanvasLeftMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (_curShape < 0) return;
 
@@ -56,30 +57,29 @@ namespace WpfApp1.Core.Drawing
 
             ShapeSettings s = new ShapeSettings
             {
-                mouseUp = new MouseButtonEventHandler(CanvasMouseUp),
                 borderColor = _borderColor,
                 fillColor = _fillColor,
                 lineWidth = _allStrokeWidths[_curWidth],
-                isLast = false
             };
 
             if (_shapeTypeList[_curShape].IsSubclassOf(typeof(PointShape)))
             {
-                if (e.ClickCount == 2)
-                {
-                    Draw.finishCurrentPoly();
-                }
-                else
-                {
-                    ConstructorInfo constructor = _shapeTypeList[_curShape]
-                        .GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 2);
-                    if (constructor != null)
-                        Draw.onPolyMouseDown(e);
-                }
+                ConstructorInfo constructor = _shapeTypeList[_curShape].GetConstructors().Where(_ => _.GetParameters().Length == 3).First();
+                Draw.onPolyMouseDown(e, constructor, s);
             }
             else
             {
-                Draw.onMouseDown(e);
+                ConstructorInfo constructor = _shapeTypeList[_curShape].GetConstructors().Where(_ => _.GetParameters().Length == 5).First();
+                Draw.onMouseDown(e, constructor, s);
+            }
+        }
+        public void CanvasRightMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (_curShape < 0) return;
+
+            if (_shapeTypeList[_curShape].IsSubclassOf(typeof(PointShape)))
+            {
+                Draw.finishCurrentPoly();
             }
         }
 
@@ -90,20 +90,12 @@ namespace WpfApp1.Core.Drawing
                 ShapeSettings s = new ShapeSettings();
                 int x = (int)e.GetPosition(_mainCanvas).X;
                 int y = (int)e.GetPosition(_mainCanvas).Y;
-                s.mouseUp = new MouseButtonEventHandler(CanvasMouseUp);
                 s.borderColor = _borderColor;
                 s.fillColor = _fillColor;
                 s.lineWidth = _allStrokeWidths[_curWidth];
 
-                if (_shapeTypeList[_curShape].IsSubclassOf(typeof(PointShape)))
+                if (_shapeTypeList[_curShape].IsSubclassOf(typeof(FrameShape)))
                 {
-                    s.isLast = false;
-                    ConstructorInfo constructor = _shapeTypeList[_curShape].GetConstructors().Where(_ => _.GetParameters().Length == 3).First();
-                    Draw.onPolyMouseUp(x, y, constructor, s);
-                }
-                else
-                {
-                    s.isLast = false;
 
                     ConstructorInfo constructor = _shapeTypeList[_curShape].GetConstructors().Where(_ => _.GetParameters().Length == 5).First();
                     Draw.onMouseUp(x, y, constructor, s);
@@ -118,24 +110,33 @@ namespace WpfApp1.Core.Drawing
                 ShapeSettings s = new ShapeSettings();
                 int x = (int)e.GetPosition(_mainCanvas).X;
                 int y = (int)e.GetPosition(_mainCanvas).Y;
-                s.mouseUp = new MouseButtonEventHandler(CanvasMouseUp);
                 s.borderColor = _borderColor;
                 s.fillColor = _fillColor;
                 s.lineWidth = _allStrokeWidths[_curWidth];
 
                 if (_shapeTypeList[_curShape].IsSubclassOf(typeof(PointShape)))
                 {
-                    s.isLast = false;
                     ConstructorInfo constructor = _shapeTypeList[_curShape].GetConstructors().Where(_ => _.GetParameters().Length == 3).First();
                     Draw.onPolyMouseMove(x, y, constructor, s);
                 }
                 else
                 {
-                    s.isLast = false;
                     ConstructorInfo constructor = _shapeTypeList[_curShape].GetConstructors().Where(_ => _.GetParameters().Length == 5).First();
                     Draw.onMouseMove(x, y, constructor, s);
                 }
             }
         }
+
+        public void Undo()
+        {
+            Draw.Undo();
+        }
+
+        public void Redo()
+        {
+            Draw.Redo();
+        }
     }
+
+    
 }
