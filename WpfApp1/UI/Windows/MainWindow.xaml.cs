@@ -10,6 +10,7 @@ using WpfApp1.Core.Drawing;
 
 namespace WpfApp1;
 
+using System.Text.RegularExpressions;
 using Microsoft.Win32;
 using UI;
 using WpfApp1.Core;
@@ -21,6 +22,8 @@ public partial class MainWindow : Window
     private DrawHandlers _drawingLogic;
     private ToggleButton[] shapeButtons;
     private ToggleButton[] widthButtons;
+
+    private bool isUpdatingFromSlider = false;
 
     private int curShape = -1;
     private int curWidth = 0;
@@ -128,6 +131,8 @@ public partial class MainWindow : Window
 
     private void ColorSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
+        if (isUpdatingFromSlider) return;
+
         byte r = (byte)SliderR.Value;
         byte g = (byte)SliderG.Value;
         byte b = (byte)SliderB.Value;
@@ -137,6 +142,11 @@ public partial class MainWindow : Window
         chosenEllipse.Fill = brush;
         _drawingLogic.SetBorderColor(borderEllipse.Fill);
         _drawingLogic.SetFillColor(fillEllipse.Fill);
+
+        isUpdatingFromSlider = true;
+        string hex = $"#{r:X2}{g:X2}{b:X2}";
+        isUpdatingFromSlider = false;
+        HexColorDisplay.Text = hex;
     }
 
     private void chooseFill(object sender, MouseButtonEventArgs e)
@@ -214,5 +224,33 @@ public partial class MainWindow : Window
         Draw.drawManager.Clear();
     }
 
+    private void HexColorDisplay_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (isUpdatingFromSlider) return;
 
+        string hex = HexColorDisplay.Text;
+
+        if (!Regex.IsMatch(hex, @"^#([0-9A-Fa-f]{6})$")) return;
+
+        try
+        {
+            byte r = Convert.ToByte(hex.Substring(1, 2), 16);
+            byte g = Convert.ToByte(hex.Substring(3, 2), 16);
+            byte b = Convert.ToByte(hex.Substring(5, 2), 16);
+
+            isUpdatingFromSlider = true;
+            SliderR.Value = r;
+            SliderG.Value = g;
+            SliderB.Value = b;
+            isUpdatingFromSlider = false;
+
+            Color color = Color.FromRgb(r, g, b);
+            SolidColorBrush brush = new SolidColorBrush(color);
+
+            chosenEllipse.Fill = brush;
+        }
+        catch
+        {
+        }
+    }
 }

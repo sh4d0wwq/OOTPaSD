@@ -112,7 +112,7 @@
                 <RowDefinition Height="20"></RowDefinition>
             </Grid.RowDefinitions>
 
-            <Border  Grid.Row="0" Background="#272727" BorderThickness="0 1 0 1" BorderBrush="Black" Height="130" VerticalAlignment="Top" Grid.RowSpan="2">
+            <Border  Grid.Row="0" Background="#272727" BorderThickness="0 1 0 1" BorderBrush="Black" Height="145" VerticalAlignment="Top" Grid.RowSpan="2">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Width="746">
                     <Popup x:Name="DropdownPopup" 
                            PlacementTarget="{Binding ElementName=MainButton}"
@@ -170,6 +170,17 @@
                                 <Slider x:Name="SliderG" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
                                 <TextBlock Text="B" Foreground="LightGray" Margin="0,2"/>
                                 <Slider x:Name="SliderB" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
+                                <TextBox x:Name="HexColorDisplay"
+                                     Margin="0,5,0,0"
+                                     Foreground="LightGray"
+                                     Background="#333333"
+                                     BorderBrush="Gray"
+                                     BorderThickness="1"
+                                     FontFamily="Consolas"
+                                     FontSize="12"
+                                     MaxLength="7"
+                                     Text="#000000"
+                                     TextChanged="HexColorDisplay_TextChanged"/>
                             </StackPanel>
                         </Grid>
 
@@ -198,16 +209,11 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Row="1" Background="#202020" Margin="0,30,0,0">
+            <Border Grid.Row="1" Background="#202020" Margin="0,45,0,0" Grid.RowSpan="2">
                 <Canvas ClipToBounds="True" PreviewMouseLeftButtonDown="CanvasLeftMouseDown" PreviewMouseRightButtonDown="CanvasRightMouseDown"  MouseMove="CanvasMouseMove" PreviewMouseUp="CanvasMouseUp"
-                    Margin="10 0 10 0" Background="White" Width="600" Height="400" Loaded="LoadedCanvas">
-                </Canvas>
+                    Margin="50,5,50,4" Background="White" Height="400" Loaded="LoadedCanvas"/>
             </Border>
 
-            <Border Grid.Row="2" Background="#202020" BorderThickness="0 1 0 0" BorderBrush="Black">
-                <TextBlock  FontSize="11" Foreground="LightGray"
-                            Margin="5 0 5 0" HorizontalAlignment="Center" VerticalAlignment="Center">Filename</TextBlock>
-            </Border>
         </Grid>
     </Grid>
 </Window>
