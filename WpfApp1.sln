@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Plugin", "Plugin\Plugin.csproj", "{69F74F15-7C59-4913-A473-1769913FF76A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrapezoidPlugin", "TrapezyPlugin\TrapezoidPlugin.csproj", "{5C2ECD1B-9530-48B5-A920-5B0D8A59C58F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{69F74F15-7C59-4913-A473-1769913FF76A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69F74F15-7C59-4913-A473-1769913FF76A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69F74F15-7C59-4913-A473-1769913FF76A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C2ECD1B-9530-48B5-A920-5B0D8A59C58F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C2ECD1B-9530-48B5-A920-5B0D8A59C58F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C2ECD1B-9530-48B5-A920-5B0D8A59C58F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C2ECD1B-9530-48B5-A920-5B0D8A59C58F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
