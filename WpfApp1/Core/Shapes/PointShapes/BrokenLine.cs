@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using WpfApp1.Core.Serialization;
 using WpfApp1.Core.Shapes;
 
 namespace WpfApp1.Core.Shapes.PointShapes
@@ -31,7 +32,7 @@ namespace WpfApp1.Core.Shapes.PointShapes
             num++;
         }
 
-        override public System.Windows.UIElement draw()
+        public override System.Windows.UIElement draw()
         {
 
             Polyline tr = new Polyline();

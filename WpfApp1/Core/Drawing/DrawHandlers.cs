@@ -10,14 +10,14 @@ namespace WpfApp1.Core.Drawing
     public class DrawHandlers
     {
         private Canvas _mainCanvas;
-        private Type[] _shapeTypeList;
+        private List<Type> _shapeTypeList;
         private int _curShape;
         private double[] _allStrokeWidths;
         private int _curWidth;
         private Brush _borderColor;
         private Brush _fillColor;
 
-        public DrawHandlers(Canvas mainCanvas, Type[] shapeTypeList, double[] allStrokeWidths)
+        public DrawHandlers(Canvas mainCanvas, List<Type> shapeTypeList, double[] allStrokeWidths)
         {
             _mainCanvas = mainCanvas;
             _shapeTypeList = shapeTypeList;

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using static WpfApp1.Core.Drawing.Draw;
+using WpfApp1.Core.Serialization;
 
 namespace WpfApp1.Core.Shapes
 {

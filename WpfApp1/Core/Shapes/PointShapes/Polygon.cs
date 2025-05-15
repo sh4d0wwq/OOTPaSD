@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using WpfApp1.Core.Serialization;
 using WpfApp1.Core.Shapes;
 
 namespace WpfApp1.Core.Shapes.PointShapes
@@ -32,7 +33,7 @@ namespace WpfApp1.Core.Shapes.PointShapes
 
         }
 
-        override public System.Windows.UIElement draw()
+        public override System.Windows.UIElement draw()
         {
 
             System.Windows.Shapes.Polygon tr = new System.Windows.Shapes.Polygon();

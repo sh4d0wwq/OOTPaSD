@@ -1,19 +1,16 @@
-﻿using System;
+using WpfApp1.Core.Serialization;
+using WpfApp1.Core.Shapes.FrameShapes;
+using WpfApp1.Core;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using WpfApp1.Core.Serialization;
 using WpfApp1.Core.Shapes;
+using System.Windows.Media;
 
-namespace WpfApp1.Core.Shapes.FrameShapes
+namespace Plugin
 {
-    public class MyRect : FrameShape
+    public class StarShape: FrameShape
     {
-
-        public static int id = 0;
-
-        public MyRect(Canvas canvas, int x1, int y1, int x2, int y2)
+        public StarShape(Canvas canvas, int x1, int y1, int x2, int y2)
             : base(canvas, x1, y1, x2, y2)
         {
             if (x1 > x2)
@@ -35,26 +32,45 @@ namespace WpfApp1.Core.Shapes.FrameShapes
             width = Math.Abs(x2 - x1);
             height = Math.Abs(y2 - y1);
         }
-        public MyRect(Canvas canvas, int x, int y, int width)
+        public StarShape(Canvas canvas, int x, int y, int width)
             : base(canvas, x, y, width)
         {
 
         }
+        private PointCollection CreateStarPoints(double x, double y, double width, double height, int numPoints, double innerRadiusRatio)
+        {
+            PointCollection points = new PointCollection();
+            double centerX = x + width / 2;
+            double centerY = y + height / 2;
+            double outerRadius = Math.Min(width, height) / 2;
+            double innerRadius = outerRadius * innerRadiusRatio;
+
+            double angleStep = Math.PI / numPoints;
+
+            for (int i = 0; i < numPoints * 2; i++)
+            {
+                double angle = i * angleStep - Math.PI / 2;
+                double radius = (i % 2 == 0) ? outerRadius : innerRadius;
+                double px = centerX + radius * Math.Cos(angle);
+                double py = centerY + radius * Math.Sin(angle);
+                points.Add(new Point(px, py));
+            }
+
+            return points;
+        }
+
         public override UIElement draw()
         {
-            Rectangle tr = new Rectangle();
-            tr.Width = width;
-            tr.Height = height;
+            var polygon = new System.Windows.Shapes.Polygon();
+            polygon.Points = CreateStarPoints(x, y, width, height, 5, 0.5);
+            init(polygon);
+            polygon.IsHitTestVisible = false;
+            canvas.Children.Add(polygon);
 
-            init(tr);
-            tr.IsHitTestVisible = false;
-            canvas.Children.Add(tr);
-            Canvas.SetLeft(tr, x);
-            Canvas.SetTop(tr, y);
-
-            return tr;
+            return polygon;
 
         }
+
         public override ShapeDto ToDto()
         {
             return new ShapeDto
@@ -81,15 +97,11 @@ namespace WpfApp1.Core.Shapes.FrameShapes
                 fillColor = BrushConverterHelper.StringToBrush(dto.Settings.FillColor),
                 lineWidth = dto.Settings.LineWidth
             };
-           
-            MyRect result = new MyRect(canvas, dto.X, dto.Y, dto.Width, dto.Height);
+
+            StarShape result = new StarShape(canvas, dto.X, dto.Y, dto.X + dto.Width, dto.Y + dto.Height);
             result.settings = settings;
             return result;
         }
-
     }
 
 }
-
-    
-

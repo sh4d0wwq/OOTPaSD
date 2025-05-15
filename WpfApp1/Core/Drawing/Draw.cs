@@ -76,6 +76,7 @@ namespace WpfApp1.Core.Drawing
             }
             onDrawing = false;
             curShape = null;
+            drawManager.drawCount++;
         }
         public static void onPolyMouseDown(MouseButtonEventArgs e, ConstructorInfo constructor, ShapeSettings s)
         {
@@ -122,6 +123,7 @@ namespace WpfApp1.Core.Drawing
         {
             curShape = null;
             onDrawing = false;
+            drawManager.drawCount++;
         }
 
         public static void Undo()

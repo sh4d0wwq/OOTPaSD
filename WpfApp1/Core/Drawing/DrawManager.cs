@@ -6,10 +6,11 @@ namespace WpfApp1.Core.Drawing
 
     public class DrawManager
     {
-
+        
         public List<Shape> shapeList = new List<Shape>();
         private Canvas canvas;
         private Stack<Shape> undoStack = new Stack<Shape>();
+        public int drawCount = 0;
 
         public Shape? this[int index]
         {
@@ -79,12 +80,13 @@ namespace WpfApp1.Core.Drawing
 
         public void Undo()
         {
-            if (shapeList.Count > 0)
+            if (drawCount > 0)
             {
                 var shape = shapeList[^1];
                 shapeList.RemoveAt(shapeList.Count - 1);
                 undoStack.Push(shape);
                 canvas.Children.RemoveAt(canvas.Children.Count - 1);
+                drawCount--;
             }
         }
 
@@ -95,6 +97,7 @@ namespace WpfApp1.Core.Drawing
                 var shape = undoStack.Pop();
                 shapeList.Add(shape);
                 shapeList[^1].draw();
+                drawCount++;
             }
         }
 
@@ -103,6 +106,7 @@ namespace WpfApp1.Core.Drawing
             canvas.Children.Clear();
             shapeList.Clear();
             undoStack.Clear();
+            drawCount = 0;
         }
     }
 }

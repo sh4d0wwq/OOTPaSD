@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using WpfApp1.Core.Serialization;
 using WpfApp1.Core.Shapes;
 
 namespace WpfApp1.Core.Shapes.FrameShapes
@@ -41,7 +42,7 @@ namespace WpfApp1.Core.Shapes.FrameShapes
 
         }
 
-        override public UIElement draw()
+        public override UIElement draw()
         {
             
             Ellipse tr = new Ellipse();

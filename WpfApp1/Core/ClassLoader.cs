@@ -4,7 +4,7 @@ namespace WpfApp1.Core
 {
     public static class ClassLoader
     {
-        public static Type[] LoadShapeTypes(Type baseType)
+        public static List<Type> LoadShapeTypes(Type baseType)
         {
             return Assembly.GetAssembly(baseType)
                 .GetTypes()
@@ -16,7 +16,7 @@ namespace WpfApp1.Core
                         throw new InvalidOperationException($"Class {type.Name} does not have a static 'id' field.");
                     return (int)idField.GetValue(null);
                 })
-                .ToArray();
+                .ToList();
         }
     }
 }

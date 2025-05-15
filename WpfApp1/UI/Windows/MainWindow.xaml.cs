@@ -7,15 +7,14 @@ using System.Windows.Shapes;
 using static WpfApp1.Core.Drawing.Draw;
 using System.Reflection;
 using WpfApp1.Core.Drawing;
-
-namespace WpfApp1;
-
 using System.Text.RegularExpressions;
 using Microsoft.Win32;
-using UI;
+using WpfApp1.UI;
 using WpfApp1.Core;
+using WpfApp1.Core.Serialization;
 using WpfApp1.Core.Shapes;
-using WpfApp1.Core.Shapes.PointShapes;
+
+namespace WpfApp1;
 
 public partial class MainWindow : Window
 {
@@ -30,7 +29,7 @@ public partial class MainWindow : Window
 
     private double[] allStrokeWidths = { 1, 1.5, 2, 3, 5};
     
-    private Type[] shapeTypeList;
+    private List<Type> shapeTypeList;
 
     Ellipse chosenEllipse;
 
@@ -57,10 +56,10 @@ public partial class MainWindow : Window
         widthButtons = new ToggleButton[allStrokeWidths.Length];
         FillUIElements.setDropdownPopup(DropdownPopup,allStrokeWidths, widthButtons, new RoutedEventHandler(widthButtonClick), curWidth);
 
-        Type ourtype = typeof(Shape);
+        Type ourtype = typeof(WpfApp1.Core.Shapes.Shape);
         shapeTypeList = ClassLoader.LoadShapeTypes(ourtype);
 
-        shapeButtons = new ToggleButton[shapeTypeList.Length];
+        shapeButtons = new ToggleButton[shapeTypeList.Count];
 
         FillUIElements.setShapeButtons(shapeButtonList,shapeTypeList,shapeButtons, new RoutedEventHandler(ShapeButtonClick));
         chosenEllipse = borderEllipse;
@@ -97,7 +96,7 @@ public partial class MainWindow : Window
 
     private void ShapeButtonClick(object sender, RoutedEventArgs e)
     {
-        for (int i = 0; i < shapeTypeList.Length; i++)
+        for (int i = 0; i < shapeTypeList.Count; i++)
         {
             if (shapeButtons[i] == (ToggleButton)sender)
             {
@@ -192,8 +191,9 @@ public partial class MainWindow : Window
         {
             string filePath = openFileDialog.FileName;
 
+            Draw.drawManager.Clear();
             Draw.drawManager.shapeList = ShapeSerializer.LoadShapes(filePath, Draw.mainCanvas);
-            Draw.mainCanvas.Children.Clear();
+            
             Draw.drawManager.DrawAll();
         }
     }
@@ -208,9 +208,7 @@ public partial class MainWindow : Window
         if (saveFileDialog.ShowDialog() == true)
         {
             string filePath = saveFileDialog.FileName;
-
             ShapeSerializer.SaveShapes(Draw.drawManager.shapeList, filePath);
-
         }
     }
 
@@ -253,4 +251,47 @@ public partial class MainWindow : Window
         {
         }
     }
+
+    private void LoadPluginFromFile(object sender, RoutedEventArgs e)
+    {
+        OpenFileDialog openFileDialog = new OpenFileDialog
+        {
+            Filter = "DLL files (*.dll)|*.dll",
+            Title = "Выберите файл плагина"
+        };
+
+        if (openFileDialog.ShowDialog() == true)
+        {
+            string dllPath = openFileDialog.FileName;
+
+            try
+            {
+                var asm = Assembly.LoadFrom(dllPath);
+                ShapeRegistry.RegisterAssembly(asm);
+
+                var newTypes = asm.GetTypes()
+                    .Where(t => typeof(WpfApp1.Core.Shapes.Shape).IsAssignableFrom(t) && !t.IsAbstract && t.IsPublic)
+                    .ToList();
+
+                foreach (var type in newTypes)
+                {
+                    if (!shapeTypeList.Contains(type))
+                    {
+                        shapeTypeList.Add(type);
+                    }
+                }
+                shapeButtons = new ToggleButton[shapeTypeList.Count];
+                FillUIElements.setShapeButtons(shapeButtonList, shapeTypeList, shapeButtons, new RoutedEventHandler(ShapeButtonClick));
+
+                MessageBox.Show("Плагин загружен.");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки плагина: " + ex.Message);
+            }
+        }
+    }
+
 }
+
+

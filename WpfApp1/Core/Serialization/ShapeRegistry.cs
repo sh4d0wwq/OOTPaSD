@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using WpfApp1.Core.Shapes;
 
 public static class ShapeRegistry
@@ -10,8 +7,12 @@ public static class ShapeRegistry
 
     static ShapeRegistry()
     {
+        RegisterAssembly(Assembly.GetExecutingAssembly());
+    }
+
+    public static void RegisterAssembly(Assembly assembly)
+    {
         var shapeBaseType = typeof(Shape);
-        var assembly = Assembly.GetExecutingAssembly();
 
         foreach (var type in assembly.GetTypes())
         {

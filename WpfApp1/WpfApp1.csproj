@@ -34,8 +34,4 @@
     <PRIResource Remove="Resources\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Core\Plugins\" />
-  </ItemGroup>
-
 </Project>
